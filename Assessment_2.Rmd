@@ -1,0 +1,36 @@
+---
+title: "Asessment 2"
+author: "Kris Chavez (s4591950)"
+date: '2022-05-10'
+output: 
+  html_document:
+      number_sections: true           
+      toc: true                       #TOC = Table of COntents
+      toc_depth: 2
+      theme: readable                  #Added a theme to make the document more appealing
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# Install.packages("tidyverse")
+# Install.packages("rmarkdown")
+library(tidyverse)
+library(rmarkdown)
+```
+
+# Assignment 2 | _Kris Chavez_ __s4591950__
+
+### Loading the dataset
+As shown below, we have loaded the *data* in a **new** variable called 'thanksgiving'
+```{r load the required CSV file}
+# Set working the working directory to the data set provided by the lecturer
+thanksgiving <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2018/2018-11-20/thanksgiving_meals.csv")
+```
+
+
+### Saving a copy of the dataset
+``` {r saving a  copy of the CSV file}
+# Saving my data as a CSV file
+write_csv(thanksgiving, "thanksgiving.csv")
+thanksgiving_data<-read_csv("thanksgiving.csv")
+```
