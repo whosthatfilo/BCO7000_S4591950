@@ -47,7 +47,7 @@ fastfood %>%                  # add a pipe
 ### Arrange observations with more than 40 in total_fat and more than 80 in total_carb in the descending order and save them to a new variable (dataset) called 'dont_eat_this'
 ``` {r}
 # create a data frame called 'dont_eat_this'
-fastfood <- dont_eat_this
+dont_eat_this <- fastfood
 
 # use the functions ARRANGE, GROUP_BY, DESC and .BY_GROUP
 # goal is to find the items with more than 40 total_cat and 80 total_carb
@@ -66,18 +66,16 @@ dont_eat_this
 # when total calories is greater than 500
 # low calories = less than 250
 # average calories = all other cases
-library(dplyr)
-dont_eat_this %>%
-  select(calories) %>%
-  mutate(
+dont_eat_this <- mutate(fastfood,
     heavy_food = case_when(
     calories > 500 ~ "heavy",
     calories < 250 ~ "low",
     TRUE ~ "other"
-                              ))
+    )
+  )
 
-# now that we have the variable, add the newly created variable to the dataset 
-# called "heavy_food"
+# now that we have the newly created variable called 'heavy_food'
+# use the count function to count the observations
 
 
 ```
