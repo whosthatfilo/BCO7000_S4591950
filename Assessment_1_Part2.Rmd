@@ -15,9 +15,11 @@ knitr::opts_chunk$set(echo = TRUE)
 # install.packages("tidyverse")
 # install.packages("rmarkdown")
 # install.packages("dplyr")
+# install.packages("skimr")
 library(tidyverse)
 library(rmarkdown)
 library(dplyr)
+library(skimr)
 ```
 
 
@@ -73,31 +75,53 @@ dont_eat_this <- mutate(fastfood,
     TRUE ~ "other"
     )
   )
+dont_eat_this
 
 # now that we have the newly created variable called 'heavy_food'
 # use the count function to count the observations
-
+dont_eat_this %>%
+  count(heavy_food) %>%
+  mutate(heavy_food_count = n)
 
 ```
 
 
 ### Display the types of variables in the dataset using 'skimr' package
 ``` {r}
+# Display the summary of the dataset using skim
+skim(fastfood)
 
+# Use the script below to display a summary of the variables + averages of the data set
+skim(fastfood) %>%
+  dplyr::select(skim_type, skim_variable, numeric.mean)
 ```
 
 
 ### Present the count observation from each restaurant in a descending order
 
-Show the number of distinct items on a menu in the dataset
+Show the number of distinct items on a menu in the data set
 ``` {r}
+# Count each item from a restaurant > in descending order
+fastfood %>%
+  count(restaurant,item) %>%
+  group_by(item) %>%
+  arrange(desc(item))
 
+# More cleaner way to view the n/ items based on the distinct RESTAURANT
+fastfood %>%
+  group_by(restaurant) %>%
+  summarise(fastfood = n_distinct(item)) %>%
+  arrange(desc(fastfood))
 ```
 
 
 ### Using groupings (group_by()), summarise and display the average number of calories for each restaurant.
 ``` {r}
-
+# vars = variable
+# grouping RESTAURANT by CALORIES average
+fastfood %>%
+  group_by(restaurant) %>%
+  summarise_at(vars(calories), list(calories_average = mean))
 ```
 
 
@@ -106,7 +130,27 @@ Show the number of distinct items on a menu in the dataset
 -  calculates the maximum total_fat per type of restaurant and call it `max_fat` 
 -  calculates the minimum cholesterol per type of restaurant and call it `min_cholesterol` 
 ``` {r}
+# Find a way to mutate these functions
 
+
+# average_calories
+fastfood %>%
+  group_by(item) %>%
+  summarise(average_calories = mean(calories))
+
+# max_fat
+fastfood %>%
+  rowwise()%>%
+  mutate(
+    max_fat = max(c(total_fat))
+  )
+
+# min cholesterol
+fastfood %>%
+  rowwise()%>%
+  mutate(
+    min_cholesterol = min(c(restaurant,cholesterol))
+  )
 ```
 
 
