@@ -14,8 +14,14 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 # Install.packages("tidyverse")
 # Install.packages("rmarkdown")
+# Install.packages("skimr")
+# Install.packages("ggplot2")
+# Install.packages("dplyr")
 library(tidyverse)
 library(rmarkdown)
+library(skimr)
+library(ggplot2)
+library(dplyr)
 ```
 
 # Assignment 2 | _Kris Chavez_ __s4591950__
@@ -44,13 +50,19 @@ knitr::kable(head(thanksgiving, 10), "pipe")
 ```
 
 ### Use 'skim()' function to display the summary of the variables
+```{r}
+skim(thanksgiving)
+```
 Think about the task to predict a family income based on their menu: what variables may be useful? Are all of them correct type? 
 Write 2-3 sentences with your explanation.
 
 Think about the task to predict a community type or US_region based on their menu: what variables may be useful? Are all of them correct type?
 
 ### Use `fct_reorder` and `parse_number` functions to create a factor variable `family_income`
+```{r}
 
+
+```
 
 ### What is the number of people who celebrate? 
 
