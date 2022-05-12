@@ -12,10 +12,12 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-# Install.packages("tidyverse")
-# Install.packages("rmarkdown")
+# install.packages("tidyverse")
+# install.packages("rmarkdown")
+# install.packages("dplyr")
 library(tidyverse)
 library(rmarkdown)
+library(dplyr)
 ```
 
 
@@ -40,7 +42,95 @@ fastfood_data<-read_csv("fastfood.csv")
 fastfood %>%                  # add a pipe
   filter(calories > 1000)     # greater than filter
 ```
+
+
 ### Arrange observations with more than 40 in total_fat and more than 80 in total_carb in the descending order and save them to a new variable (dataset) called 'dont_eat_this'
+``` {r}
+# create a data frame called 'dont_eat_this'
+fastfood <- dont_eat_this
+
+# use the functions ARRANGE, GROUP_BY, DESC and .BY_GROUP
+# goal is to find the items with more than 40 total_cat and 80 total_carb
+dont_eat_this <- arrange(group_by(fastfood, item), # item is used as the key column to group
+                         desc(total_fat > 40), 
+                         desc(total_carb > 80),
+                         .by_group = TRUE)
+dont_eat_this
+  
+```
 
 
-### 
+### Using the initial dataset variable, use `case_when()` to create a new variable `heavy_food` which is equal to "heavy" when total calories (`calories`) are greater than 500, "low" when total calories are less than 250 and "average" for all other cases. Count the number of observations in each created category.
+``` {r}
+# create a new variable
+# when total calories is greater than 500
+# low calories = less than 250
+# average calories = all other cases
+library(dplyr)
+dont_eat_this %>%
+  select(calories) %>%
+  mutate(
+    heavy_food = case_when(
+    calories > 500 ~ "heavy",
+    calories < 250 ~ "low",
+    TRUE ~ "other"
+                              ))
+
+# now that we have the variable, add the newly created variable to the dataset 
+# called "heavy_food"
+
+
+```
+
+
+### Display the types of variables in the dataset using 'skimr' package
+``` {r}
+
+```
+
+
+### Present the count observation from each restaurant in a descending order
+
+Show the number of distinct items on a menu in the dataset
+``` {r}
+
+```
+
+
+### Using groupings (group_by()), summarise and display the average number of calories for each restaurant.
+``` {r}
+
+```
+
+
+### Add variables to the dataset, which:
+-  calculates the average calories per type of restaurant and call it `average_calories` 
+-  calculates the maximum total_fat per type of restaurant and call it `max_fat` 
+-  calculates the minimum cholesterol per type of restaurant and call it `min_cholesterol` 
+``` {r}
+
+```
+
+
+### Display the data vis of total fat per each type of restaurant. Write a narration (2-3 sentences) why you believe this type of data viz presents such information best. 
+``` {r}
+
+```
+
+### Add a variable to the dataset, which calculates the sum of cholesterol and sodium and call it `cholesterol_sodium`.
+
+Remove the variable `salad`
+``` {r}
+
+```
+
+
+### Use observations for Mcdonalds to plot sugar variable against protein with `geom_point()` 
+``` {r}
+
+```
+
+
+
+
+
