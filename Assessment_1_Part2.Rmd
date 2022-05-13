@@ -16,10 +16,12 @@ knitr::opts_chunk$set(echo = TRUE)
 # install.packages("rmarkdown")
 # install.packages("dplyr")
 # install.packages("skimr")
+# install.packages("ggplot2")
 library(tidyverse)
 library(rmarkdown)
 library(dplyr)
 library(skimr)
+library(ggplot2)
 ```
 
 
@@ -125,6 +127,11 @@ fastfood %>%
 ```
 
 
+
+
+
+
+
 ### Add variables to the dataset, which:
 -  calculates the average calories per type of restaurant and call it `average_calories` 
 -  calculates the maximum total_fat per type of restaurant and call it `max_fat` 
@@ -154,9 +161,16 @@ fastfood %>%
 ```
 
 
-### Display the data vis of total fat per each type of restaurant. Write a narration (2-3 sentences) why you believe this type of data viz presents such information best. 
-``` {r}
 
+
+
+
+
+### Display the data vis of total fat per each type of restaurant. Write a narration (2-3 sentences) why you believe this type of data viz presents such information best.
+Using one of the functions from the 'TidyVerse' package,  __'GGPLOT'__ was used to display the total_fat(y-axis) against the different type of restaurants(x-axis) in a visual graph.  As shown below, we can see that the franchise 'McDonalds' and 'Burger King' were the top two restaurants with the most amount of total_fat content in their items (food).  Whilst the franchise 'Chick Fil-A' having the least total_fat content per item (disregarding the outliers).   
+``` {r}
+ggplot(data = fastfood) +
+  geom_point(mapping = aes(x = restaurant, y = total_fat))
 ```
 
 ### Add a variable to the dataset, which calculates the sum of cholesterol and sodium and call it `cholesterol_sodium`.
@@ -169,7 +183,8 @@ Remove the variable `salad`
 
 ### Use observations for Mcdonalds to plot sugar variable against protein with `geom_point()` 
 ``` {r}
-
+ggplot(data = fastfood) +
+  geom_point(mapping = aes(x = ))
 ```
 
 
