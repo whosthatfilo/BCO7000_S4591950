@@ -7,7 +7,8 @@ output:
       number_sections: true           
       toc: true                       #TOC = Table of COntents
       toc_depth: 2
-      theme: readable                  #Added a theme to make the document more appealing
+      toc_float: true
+      theme: cerulean                  #Added a theme to make the document more appealing
 ---
 
 ```{r setup, include=FALSE}
@@ -18,17 +19,20 @@ knitr::opts_chunk$set(echo = TRUE)
 # install.packages("skimr")
 # install.packages("ggplot2")
 # install.packages("knitr")
+# install.packages("kableExtra")
 library(tidyverse)
 library(rmarkdown)
 library(dplyr)
 library(skimr)
 library(ggplot2)
 library(knitr)
+library(kableExtra)
 ```
 
 
 ### Loading the dataset
-As shown below, we have loaded the *data* in a **new** variable called 'fastfood'
+
+As shown below, we have loaded the *data* in a *new* variable called 'fastfood'
 ```{r load the required CSV file}
 # Set working the working directory to the data set provided by the lecturer
 fastfood <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2018/2018-09-04/fastfood_calories.csv")
@@ -43,14 +47,24 @@ fastfood_data<-read_csv("fastfood.csv")
 ```
 
 
-### Display the oobservations that has more than 1000 calories
+### Display the observations that has more than 1000 calories
+
+The filter() function is used to display and sort data by:
+
++ **'>'** = greater than
++ **'>='** = greater than or equal to
++ **'<'** = less than or equal 
++ **'<='** = less than or equal 
++ **'=='** = equality
 ``` {r}
-fastfood %>%                  # add a pipe
-  filter(calories > 1000)     # greater than filter
+fastfood %>%                # add a pipe
+  filter(calories > 1000)   # greater than filter
+
 ```
 
 
 ### Arrange observations with more than 40 in total_fat and more than 80 in total_carb in the descending order and save them to a new variable (dataset) called 'dont_eat_this'
+
 ``` {r}
 # create a data frame called 'dont_eat_this'
 dont_eat_this <- fastfood
@@ -67,11 +81,14 @@ dont_eat_this
 
 
 ### Use `case_when()` to create a new variable `heavy_food` which is equal to "heavy" when total calories (`calories`) are greater than 500, "low" when total calories are less than 250 and "average" for all other cases. Count the number of observations in each created category.
+
+Here is the logic of the script shown below:
+
++ create a new variable called 'heavy_food' using the mutate() function
++ Heavy = total calories > 500
++ Average = average calories < all other cases
++ Low = total calories < 250
 ``` {r}
-# create a new variable
-# when total calories is greater than 500
-# low calories = less than 250
-# average calories = all other cases
 dont_eat_this <- mutate(fastfood,
     heavy_food = case_when(
     calories > 500 ~ "heavy",
@@ -123,6 +140,11 @@ fastfood %>%
 
 
 ### Using groupings (group_by()), summarise and display the average number of calories for each restaurant.
+
+The script's logic: 
+
++ Human logic = grouping restaurant __AGAINST__ average calories
++ Computer logic = group_by (restaurant) ON calories(average)
 ``` {r}
 # vars = variable
 # grouping RESTAURANT by CALORIES average
@@ -138,6 +160,7 @@ fastfood %>%
 
 
 ### Add variables to the dataset, which:
+
 -  calculates the average calories per type of restaurant and call it `average_calories` 
 -  calculates the maximum total_fat per type of restaurant and call it `max_fat` 
 -  calculates the minimum cholesterol per type of restaurant and call it `min_cholesterol` 
@@ -172,6 +195,7 @@ fastfood %>%
 
 
 ### Display the data vis of total fat per each type of restaurant. Write a narration (2-3 sentences) why you believe this type of data viz presents such information best.
+
 Using one of the functions from the 'TidyVerse' package,  __'GGPLOT'__ was used to display the total_fat(y-axis) against the different type of restaurants(x-axis) in a visual graph.  As shown below, we can see that the franchise 'McDonalds' and 'Burger King' were the top two restaurants with the most amount of total_fat content in their items (food).  Whilst the franchise 'Chick Fil-A' having the least total_fat content per item (disregarding the outliers).   
 ``` {r}
 ggplot(data = fastfood) +
@@ -179,11 +203,25 @@ ggplot(data = fastfood) +
 
 ```
 
+
+
+
+
+
 ### Add a variable to the dataset, which calculates the sum of cholesterol and sodium and call it `cholesterol_sodium`.
 
-Remove the variable `salad`
+Removing the variable `salad` by using the __rm()__ function.
 ``` {r}
+# Add the variable 'cholesterol_sodium'
+# Sum of cholesterol and sodium
+fastfood <- fastfood_data %>%
+  mutate(cholester_sodium = sum(cholesterol,
+                                sodium, 
+                                na.rm = TRUE))  #na.rm = NA values should not be included
+fastfood
 
+# remove the variable 'salad'
+fastfood <- within(fastfood, rm(salad))
 ```
 
 
@@ -192,6 +230,8 @@ Remove the variable `salad`
 
 
 ### Use observations for Mcdonalds to plot sugar variable against protein with `geom_point()` 
+
+Using the R package ggplot(), we have used this to display a graph that displays the (1) sugar variable against the (2) restaurant variablel.
 ``` {r}
 ggplot(fastfood, aes(restaurant, sugar)) +
   geom_point(size = 3) +
@@ -200,11 +240,12 @@ ggplot(fastfood, aes(restaurant, sugar)) +
 ```
 
 
-### Use observations for Mcdonalds to plot sugar variable against protein with `geom_point()` 
+### Use observations for Mcdonalds to plot sugar variable against protein with `geom_point()` asdasd
+
 Using the script below, I have used the following functions:
-* filter()        -> to filter restaurants only containing the keyword "Mcdonalds"
-* geom_point()    -> adding 'dots' (data points) to the graph
-* geom_line()     -> connecting the dots to identify the common trend
++ filter()        -> to filter restaurants only containing the keyword "Mcdonalds"
++ geom_point()    -> adding 'dots' (data points) to the graph
++ geom_line()     -> connecting the dots to identify the common trend
 
 As a summary of the plot, I have come to the conclusion that the Mcdonalds franchise sells low protein meals.  In fact, most of their items (food) is by average medium-to-low in sugar and low in protein.  To add on, it could suggest that the outliers from the franchise could be due to the high-sugar content of their dessert items.
 ``` {r}
