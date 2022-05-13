@@ -67,8 +67,6 @@ fastfood %>%                # add a pipe
 
 ``` {r}
 # create a data frame called 'dont_eat_this'
-dont_eat_this <- fastfood
-
 # use the functions ARRANGE, GROUP_BY, DESC and .BY_GROUP
 # goal is to find the items with more than 40 total_cat and 80 total_carb
 dont_eat_this <- arrange(group_by(fastfood, item), # item is used as the key column to group
@@ -76,7 +74,6 @@ dont_eat_this <- arrange(group_by(fastfood, item), # item is used as the key col
                          desc(total_carb > 80),
                          .by_group = TRUE)
 dont_eat_this
-  
 ```
 
 
@@ -158,20 +155,16 @@ fastfood %>%
 
 
 
-
 ### Add variables to the dataset, which:
 
 -  calculates the average calories per type of restaurant and call it `average_calories` 
 -  calculates the maximum total_fat per type of restaurant and call it `max_fat` 
 -  calculates the minimum cholesterol per type of restaurant and call it `min_cholesterol` 
 ``` {r}
-# Find a way to mutate these functions
-
-
 # average_calories
-fastfood %>%
-  group_by(item) %>%
-  summarise(average_calories = mean(calories))
+fastfood <- fastfood_data %>%
+  mutate(average_calories = rowMeans(fastfood$restaurant,fastfood$calories))
+
 
 # max_fat
 fastfood %>%
@@ -186,12 +179,8 @@ fastfood %>%
   mutate(
     min_cholesterol = min(c(restaurant,cholesterol))
   )
+
 ```
-
-
-
-
-
 
 
 ### Display the data vis of total fat per each type of restaurant. Write a narration (2-3 sentences) why you believe this type of data viz presents such information best.
@@ -202,10 +191,6 @@ ggplot(data = fastfood) +
   geom_point(mapping = aes(x = restaurant, y = total_fat))
 
 ```
-
-
-
-
 
 
 ### Add a variable to the dataset, which calculates the sum of cholesterol and sodium and call it `cholesterol_sodium`.
@@ -223,10 +208,6 @@ fastfood
 # remove the variable 'salad'
 fastfood <- within(fastfood, rm(salad))
 ```
-
-
-
-
 
 
 ### Use observations for Mcdonalds to plot sugar variable against protein with `geom_point()` 
