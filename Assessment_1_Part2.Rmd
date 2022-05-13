@@ -151,10 +151,6 @@ fastfood %>%
 ```
 
 
-
-
-
-
 ### Add variables to the dataset, which:
 
 -  calculates the average calories per type of restaurant and call it `average_calories` 
@@ -162,24 +158,22 @@ fastfood %>%
 -  calculates the minimum cholesterol per type of restaurant and call it `min_cholesterol` 
 ``` {r}
 # average_calories
-fastfood <- fastfood_data %>%
-  mutate(average_calories = rowMeans(fastfood$restaurant,fastfood$calories))
-
+fastfood <- fastfood_data %>% 
+  group_by(restaurant) %>%
+  mutate (average_calories=mean(calories))
+fastfood
 
 # max_fat
-fastfood %>%
-  rowwise()%>%
-  mutate(
-    max_fat = max(c(total_fat))
-  )
+fastfood <- fastfood_data %>% 
+  group_by(restaurant) %>%
+  mutate (max_fat=max(total_fat))
+fastfood
 
 # min cholesterol
-fastfood %>%
-  rowwise()%>%
-  mutate(
-    min_cholesterol = min(c(restaurant,cholesterol))
-  )
-
+fastfood <- fastfood_data %>% 
+  group_by(restaurant) %>%
+  mutate (min_cholesterol=max(cholesterol))
+fastfood
 ```
 
 
