@@ -171,6 +171,7 @@ Using one of the functions from the 'TidyVerse' package,  __'GGPLOT'__ was used 
 ``` {r}
 ggplot(data = fastfood) +
   geom_point(mapping = aes(x = restaurant, y = total_fat))
+
 ```
 
 ### Add a variable to the dataset, which calculates the sum of cholesterol and sodium and call it `cholesterol_sodium`.
@@ -181,13 +182,25 @@ Remove the variable `salad`
 ```
 
 
+
+
+
+
 ### Use observations for Mcdonalds to plot sugar variable against protein with `geom_point()` 
 ``` {r}
-ggplot(data = fastfood) +
-  geom_point(mapping = aes(x = ))
+ggplot(fastfood, aes(restaurant, sugar)) +
+  geom_point(size = 3) +
+  geom_line(colour = "red")
+
 ```
 
 
-
-
+### Use observations for Mcdonalds to plot sugar variable against protein with `geom_point()` 
+``` {r}
+fastfood %>%
+  filter(restaurant == "Mcdonalds") %>%
+  ggplot(aes(protein, sugar)) + 
+  geom_point(colour = "red") +
+  geom_line()
+```
 
