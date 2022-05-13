@@ -175,22 +175,12 @@ fastfood %>%
 -  calculates the maximum total_fat per type of restaurant and call it `max_fat` 
 -  calculates the minimum cholesterol per type of restaurant and call it `min_cholesterol` 
 ``` {r}
-# average_calories
 fastfood <- fastfood_data %>% 
   group_by(restaurant) %>%
-  mutate (average_calories=mean(calories))
-fastfood
-
-# max_fat
-fastfood <- fastfood_data %>% 
-  group_by(restaurant) %>%
-  mutate (max_fat=max(total_fat))
-fastfood
-
-# min cholesterol
-fastfood <- fastfood_data %>% 
-  group_by(restaurant) %>%
-  mutate (min_cholesterol=min(cholesterol))
+  mutate (
+    min_cholesterol=min(cholesterol), #min_cholesterol
+    max_fat=max(total_fat), #max_fat
+    average_calories=mean(calories)) #average_calories
 fastfood
 ```
 
