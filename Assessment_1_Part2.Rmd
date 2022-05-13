@@ -17,11 +17,13 @@ knitr::opts_chunk$set(echo = TRUE)
 # install.packages("dplyr")
 # install.packages("skimr")
 # install.packages("ggplot2")
+# install.packages("knitr")
 library(tidyverse)
 library(rmarkdown)
 library(dplyr)
 library(skimr)
 library(ggplot2)
+library(knitr)
 ```
 
 
@@ -64,7 +66,7 @@ dont_eat_this
 ```
 
 
-### Using the initial dataset variable, use `case_when()` to create a new variable `heavy_food` which is equal to "heavy" when total calories (`calories`) are greater than 500, "low" when total calories are less than 250 and "average" for all other cases. Count the number of observations in each created category.
+### Use `case_when()` to create a new variable `heavy_food` which is equal to "heavy" when total calories (`calories`) are greater than 500, "low" when total calories are less than 250 and "average" for all other cases. Count the number of observations in each created category.
 ``` {r}
 # create a new variable
 # when total calories is greater than 500
@@ -77,7 +79,10 @@ dont_eat_this <- mutate(fastfood,
     TRUE ~ "other"
     )
   )
-dont_eat_this
+kable(dont_eat_this, 
+      format = "html", 
+      table.attr = "style='width:200%;'", 
+      align=rep('c', 1))
 
 # now that we have the newly created variable called 'heavy_food'
 # use the count function to count the observations
@@ -197,11 +202,11 @@ ggplot(fastfood, aes(restaurant, sugar)) +
 
 ### Use observations for Mcdonalds to plot sugar variable against protein with `geom_point()` 
 Using the script below, I have used the following functions:
-- filter()        -> to filter restaurants only containing the keyword "Mcdonalds"
-- geom_point()    -> adding 'dots' (data points) to the graph
-- geom_line()     -> connecting the dots to identify the common trend
+* filter()        -> to filter restaurants only containing the keyword "Mcdonalds"
+* geom_point()    -> adding 'dots' (data points) to the graph
+* geom_line()     -> connecting the dots to identify the common trend
 
-As a summary of the plot, I have come to the conclusion that the Mcdonalds franchise sells low protein meals.  In fact, most of their items (food) is high in sugar and low in protein.
+As a summary of the plot, I have come to the conclusion that the Mcdonalds franchise sells low protein meals.  In fact, most of their items (food) is by average medium-to-low in sugar and low in protein.  To add on, it could suggest that the outliers from the franchise could be due to the high-sugar content of their dessert items.
 ``` {r}
 fastfood %>%
   filter(restaurant == "Mcdonalds") %>%
