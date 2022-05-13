@@ -196,6 +196,12 @@ ggplot(fastfood, aes(restaurant, sugar)) +
 
 
 ### Use observations for Mcdonalds to plot sugar variable against protein with `geom_point()` 
+Using the script below, I have used the following functions:
+- filter()        -> to filter restaurants only containing the keyword "Mcdonalds"
+- geom_point()    -> adding 'dots' (data points) to the graph
+- geom_line()     -> connecting the dots to identify the common trend
+
+As a summary of the plot, I have come to the conclusion that the Mcdonalds franchise sells low protein meals.  In fact, most of their items (food) is high in sugar and low in protein.
 ``` {r}
 fastfood %>%
   filter(restaurant == "Mcdonalds") %>%
