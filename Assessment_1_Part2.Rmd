@@ -73,7 +73,6 @@ The filter() function is used to display and sort data by:
 ``` {r}
 fastfood %>%                # add a pipe
   filter(calories > 1000)   # greater than filter
-
 ```
 
 ## Arrange observations with more than 40 in total_fat and more than 80 in total_carb in the descending order and save them to a new variable (dataset) called 'dont_eat_this'
@@ -88,6 +87,7 @@ dont_eat_this <- arrange(group_by(fastfood, item), # item is used as the key col
                          .by_group = TRUE)
 dont_eat_this
 ```
+
 
 ## Use `case_when()` to create a new variable `heavy_food` which is equal to "heavy" when total calories (`calories`) are greater than 500, "low" when total calories are less than 250 and "average" for all other cases. Count the number of observations in each created category.
 
