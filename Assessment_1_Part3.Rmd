@@ -250,7 +250,7 @@ Read about `cut_number()` function using Help and add a new variable to the data
 
 ## Calculate and show the average (mean) `total_fat` for each type of restaurant. No need to save it as a variable.
 
-
+h
 ## And create a dataviz that allow to compare different restaurants on this variable (`total_fat`). You can present it on one dataviz (= no facets). 
 
 
