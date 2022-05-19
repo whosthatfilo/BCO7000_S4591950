@@ -20,6 +20,8 @@ knitr::opts_chunk$set(echo = TRUE)
 # install.packages("ggplot2")
 # install.packages("knitr")
 # install.packages("kableExtra")
+# install.packages("plotly")
+
 library(tidyverse)
 library(rmarkdown)
 library(dplyr)
@@ -27,6 +29,8 @@ library(skimr)
 library(ggplot2)
 library(knitr)
 library(kableExtra)
+library(plotly)
+
 ```
 
 # Part 1
@@ -229,4 +233,142 @@ fastfood %>%
 ```
 
 
-## Identify 
+
+# Part 3 
+## Identify variable(s) which should be factors and transform their type into a factor variable.
+```{r}
+# identify data type 
+str(fastfood)
+
+# create a new dataframe called 'fastfood_factor'
+# view the dataset as factor variables 
+fastfood_factor <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2018/2018-09-04/fastfood_calories.csv", header = TRUE, stringsAsFactors = TRUE)
+
+# shows datatypes in R
+# check if the datatypes have been factored 
+sapply(fastfood_factor, FUN = typeof)
+
+# to ensure the changes have been made, check the class variables
+# see how the 'CHARACTER' type columns have now been transformed to a 'FACTOR' type 
+sapply(fastfood_factor, FUN = class)
+
+# view the factor variables
+str(fastfood_factor)
+```
+
+
+## Create a new variable:
+
++ Use the __'cut_number()' function to create a new variable called = __'calories_type'__
++ Use __'Calories'__ variable for __'cut_number()'__ function to split it into _3 categories_ __'n = 3'__
++ Add labels __'labels=c("low","medium","high")__' and make sure the dataset is ordered by arranging it according to calories
+```{r}
+# create a new variable called 'calories_type'
+# turn the dataset into a factor
+# read the dataset 
+calories_type <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2018/2018-09-04/fastfood_calories.csv", header = TRUE, stringsAsFactors = TRUE)
+calories_type
+
+# attach the calories_type data and check the names
+# check if calories has been factories ("integer")
+attach(calories_type)
+names(calories_type)
+class(calories)
+
+# split the calories column to 3 categories
+# Low, Medium and High 
+# 0 - 499 (low), 500 - 999 (medium), 1000-4000 (high)
+calories_type <- cut(calories,
+                     breaks=c(0,500,1000,2000),
+                     labels=c("Low","Medium","High"))
+
+# check the categorical calories using the first 10 observations
+calories_type[1:10]
+```
+
+
+## Create a data vizualisation that shows the distribution of __'Calories_type'__ in food items for each type of restaurant
+
+Using the visualization tool package ggplot(), I have created a barplot which perfectly depicts the overall calories against the restaurant.  As you can see, the franchise McDonalds contains the highest value of calories when compared to Tacobell; being the least.   
+```{r}
+# Read the csv file
+# Create a new dataframe called 'calories_type_resto'
+# transform the columns into factors > purpose is for the script to read the factored 'calories_type' data set
+calories_type_resto <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2018/2018-09-04/fastfood_calories.csv", header = TRUE, stringsAsFactors = TRUE)
+
+
+# Mutate the 'calories_type' data set with the 'calories_type_resto'
+calories_type_resto %>%
+  mutate(calories_type = calories_type)
+
+
+# use ggplot2 package
+# create a bar plot to compare with the different restaurants on the overall calories
+ggplot(calories_type_resto,aes(x=restaurant, y=calories_type, fill=calories)) +
+  geom_bar(stat="identity", position = "dodge") +
+  theme_bw() +
+  labs(title = "Calories against the Restaurant") +
+  theme(legend.position = "right") 
+```
+
+
+## Add a new variable that shows the: 
+
++ Percentage of __'trans_fat'__ in __'total_fat'__ ('trans_fat' / 'total_fat')
++ The variable should be named __'trans_fat_percentage'__
+```{r}
+# create a new dataframe called 'trans_fat_percentage'
+trans_fat_percentage <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2018/2018-09-04/fastfood_calories.csv", header = TRUE)
+
+library(tidyverse)
+
+trans_fat_percentage %>%
+  select(trans_fat,total_fat) %>%
+  group_by(trans_fat) %>%
+  summarise(total_fat=n()) %>%
+  mutate(Percent=total_fat/sum(total_fat)*100) %>%
+  arrange(desc(total_fat))
+
+```
+
+
+## Create a data vizualisation that shows the distribution of __'trans_fat'__ in food items for each type of restaurant.
+```{r}
+trans_fat_percentage %>%
+  select(trans_fat,total_fat) %>%
+  group_by(trans_fat) %>%
+  summarise(total_fat=n()) %>%
+  mutate(Percent=total_fat/sum(total_fat)*100) %>%
+  arrange(desc(total_fat)) %>% 
+ggplot(aes(x=trans_fat, y=total_fat)) + 
+  geom_col()
+
+```
+
+
+## Calculate and show the average (mean) __'total_fat'__ for each type of restaurant.  
+
+No need to save it as a variable
+```{r}
+
+
+```
+
+
+## create a dataviz that allow to compare different restaurants on this variable (`total_fat`). 
+
+You can present it on one dataviz (= no facets)
+```{r}
+
+
+```
+
+
+
+
+
+
+
+
+
+
