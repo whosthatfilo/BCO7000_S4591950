@@ -265,15 +265,8 @@ str(fastfood_factor)
 ```{r}
 # create a new variable called 'calories_type'
 # turn the dataset into a factor
-# read the dataset 
 calories_type <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2018/2018-09-04/fastfood_calories.csv", header = TRUE, stringsAsFactors = TRUE)
-calories_type
 
-# attach the calories_type data and check the names
-# check if calories has been factories ("integer")
-attach(calories_type)
-names(calories_type)
-class(calories)
 
 # split the calories column to 3 categories
 # Low, Medium and High 
@@ -284,6 +277,11 @@ calories_type <- cut(calories,
 
 # check the categorical calories using the first 10 observations
 calories_type[1:10]
+
+# once you like the changes, save to the original data set 
+fastfood <- fastfood %>%
+  mutate(calories_type)
+colnames(fastfood)
 ```
 
 
@@ -320,8 +318,8 @@ ggplot(calories_type_resto,aes(x=restaurant, y=calories_type, fill=calories)) +
 # create a new dataframe called 'trans_fat_percentage'
 trans_fat_percentage <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2018/2018-09-04/fastfood_calories.csv", header = TRUE)
 
-library(tidyverse)
 
+# Run the script below to get the [trans_fat / total_fat * 100] function
 trans_fat_percentage %>%
   select(trans_fat,total_fat) %>%
   group_by(trans_fat) %>%
@@ -329,6 +327,10 @@ trans_fat_percentage %>%
   mutate(Percent=total_fat/sum(total_fat)*100) %>%
   arrange(desc(total_fat))
 
+# once you like the changes, save the  to the original data set
+fastfood <- fastfood %>%
+  mutate(factor(trans_fat_percentage))
+colnames(fastfood)
 ```
 
 
