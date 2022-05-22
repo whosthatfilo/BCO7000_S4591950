@@ -33,7 +33,7 @@ library(plotly)
 
 ```
 
-# Part 1
+# Part 1: Loading and Filtering the dataset
 
 ## What is RMarkdown?
 __Rmarkdown__ is a tool mostly used by _analysts_, to present their findings in the most visually appealing way.  Rmarkdown has the ability to add diagrams, plots, images and formatting options to those wanting to use Rstudio's to compile and present data.
@@ -64,7 +64,8 @@ knitr::kable(head(fastfood, 10), "pipe")        # pipe function is used to forma
 knitr::kable(head(fastfood[1:10, 1:5]), "pipe") 
 ```
 
-# Part 2
+# Part 2: Data wranggling 
+
 ## Display the observations that has more than 1000 calories
 
 The filter() function is used to display and sort data by:
@@ -79,8 +80,9 @@ fastfood %>%                # add a pipe
   filter(calories > 1000)   # greater than filter
 ```
 
-## Arrange observations with more than 40 in total_fat and more than 80 in total_carb in the descending order and save them to a new variable (dataset) called 'dont_eat_this'
+## Using the Arrange() function 
 
+Arrange observations with more than 40 in total_fat and more than 80 in total_carb in the descending order and save them to a new variable (dataset) called 'dont_eat_this'
 ``` {r}
 # create a data frame called 'dont_eat_this'
 # use the functions ARRANGE, GROUP_BY, DESC and .BY_GROUP
@@ -93,7 +95,7 @@ dont_eat_this
 ```
 
 
-## Use `case_when()` to create a new variable `heavy_food` which is equal to "heavy" when total calories (`calories`) are greater than 500, "low" when total calories are less than 250 and "average" for all other cases. Count the number of observations in each created category.
+## Using the case_when() function
 
 Here is the logic of the script shown below:
 
@@ -158,7 +160,7 @@ fastfood %>%
 ```
 
 
-## Using groupings (group_by()), summarise and display the average number of calories for each restaurant.
+## Using group_by(), summarise and display the average number of calories for each restaurant.
 
 The script's logic: 
 
@@ -189,7 +191,7 @@ fastfood
 ```
 
 
-## Display the data vis of total fat per each type of restaurant. Write a narration (2-3 sentences) why you believe this type of data viz presents such information best.
+## Display the data vis of `total_fat` per each type of `restaurant`.
 
 Using one of the functions from the 'TidyVerse' package,  __'GGPLOT'__ was used to display the total_fat(y-axis) against the different type of restaurants(x-axis) in a visual graph.  As shown below, we can see that the franchise 'McDonalds' and 'Burger King' were the top two restaurants with the most amount of total_fat content in their items (food).  Whilst the franchise 'Chick Fil-A' having the least total_fat content per item (disregarding the outliers).   
 ``` {r}
@@ -234,8 +236,11 @@ fastfood %>%
 
 
 
-# Part 3 
-## Identify variable(s) which should be factors and transform their type into a factor variable.
+# Part 3: Transforming the dataset 
+
+## Transforming the data into a factor variable
+
+Within the data set, the data_type is different across the whole file.  In order for the computer to read the data set as one data type, we can use factorization in R.  Similar to concatenation, we can use Factors to convert all data types into 1 singular read, such as integers.  Given the script below, we have managed to transform the data using factors.  For all CHARACTER type columns are now being read as factors, and all integer type columns remain the same. 
 ```{r}
 # identify data type 
 str(fastfood)
@@ -257,7 +262,7 @@ str(fastfood_factor)
 ```
 
 
-## Create a new variable:
+## Using the cut_number() function:
 
 + Use the __'cut_number()' function to create a new variable called = __'calories_type'__
 + Use __'Calories'__ variable for __'cut_number()'__ function to split it into _3 categories_ __'n = 3'__
@@ -285,7 +290,7 @@ colnames(fastfood)
 ```
 
 
-## Create a data vizualisation that shows the distribution of __'Calories_type'__ in food items for each type of restaurant
+## Create a data vizualisation that shows the distribution of `__'Calories_type'__` in food items for each type of restaurant
 
 Using the visualization tool package ggplot(), I have created a barplot which perfectly depicts the overall calories against the restaurant.  As you can see, the franchise McDonalds contains the highest value of calories when compared to Tacobell; being the least.   
 ```{r, include = FALSE}
@@ -312,7 +317,7 @@ ggplot(calories_type_resto,aes(x=restaurant, y=calories_type, fill=calories)) +
 ```
 
 
-## Add a new variable that shows the: 
+## Finding the mean of 2 variables (trans_fat & total_fat): 
 
 + Percentage of __'trans_fat'__ in __'total_fat'__ ('trans_fat' / 'total_fat')
 + The variable should be named __'trans_fat_percentage'__
@@ -347,12 +352,15 @@ ggplot(fastfood,aes(x=restaurant, y=trans_fat, fill=trans_fat)) +
 
 ## Calculate and show the average (mean) __'total_fat'__ for each type of restaurant.  
 
-No need to save it as a variable
+Calculated by mean(total_fat) and basing it on per Restaurant. 
+
+Therefore, the figures you see below are the calculated AVERAGES that were __'group_by'__ restaurant and NOT the whole data set. 
+
 ```{r}
-library(dplyr)
-
-summarise(fastfood, average = mean(total_fat, na.rm = TRUE))
-
+fastfood_data %>%
+  select(restaurant, total_fat) %>%
+  group_by(restaurant) %>%
+  mutate(avg_total_fat = total_fat/ mean(total_fat, na.rm = TRUE)* 10)
 ```
 
 
