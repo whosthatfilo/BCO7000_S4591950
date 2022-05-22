@@ -271,7 +271,7 @@ calories_type <- read.csv("https://raw.githubusercontent.com/rfordatascience/tid
 # split the calories column to 3 categories
 # Low, Medium and High 
 # 0 - 499 (low), 500 - 999 (medium), 1000-4000 (high)
-calories_type <- cut(calories,
+calories_type <- cut(calories_type$calories,
                      breaks=c(0,500,1000,2000),
                      labels=c("Low","Medium","High"))
 
@@ -288,7 +288,7 @@ colnames(fastfood)
 ## Create a data vizualisation that shows the distribution of __'Calories_type'__ in food items for each type of restaurant
 
 Using the visualization tool package ggplot(), I have created a barplot which perfectly depicts the overall calories against the restaurant.  As you can see, the franchise McDonalds contains the highest value of calories when compared to Tacobell; being the least.   
-```{r}
+```{r, include = FALSE}
 # Read the csv file
 # Create a new dataframe called 'calories_type_resto'
 # transform the columns into factors > purpose is for the script to read the factored 'calories_type' data set
@@ -298,8 +298,9 @@ calories_type_resto <- read.csv("https://raw.githubusercontent.com/rfordatascien
 # Mutate the 'calories_type' data set with the 'calories_type_resto'
 calories_type_resto %>%
   mutate(calories_type = calories_type)
+```
 
-
+```{r}
 # use ggplot2 package
 # create a bar plot to compare with the different restaurants on the overall calories
 ggplot(calories_type_resto,aes(x=restaurant, y=calories_type, fill=calories)) +
@@ -318,19 +319,12 @@ ggplot(calories_type_resto,aes(x=restaurant, y=calories_type, fill=calories)) +
 # create a new dataframe called 'trans_fat_percentage'
 trans_fat_percentage <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2018/2018-09-04/fastfood_calories.csv", header = TRUE)
 
-
+library(dplyr)
 # Run the script below to get the [trans_fat / total_fat * 100] function
-trans_fat_percentage %>%
-  select(trans_fat,total_fat) %>%
-  group_by(trans_fat) %>%
-  summarise(total_fat=n()) %>%
-  mutate(Percent=total_fat/sum(total_fat)*100) %>%
-  arrange(desc(total_fat))
-
-# once you like the changes, save the  to the original data set
-fastfood <- fastfood %>%
-  mutate(factor(trans_fat_percentage))
-colnames(fastfood)
+trans_fat_percentage <- 
+  mutate(trans_fat_percentage, 
+         percent = trans_fat / total_fat * 100)
+print(trans_fat_percentage)
 ```
 
 
