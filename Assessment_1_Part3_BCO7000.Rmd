@@ -1,0 +1,386 @@
+---
+title: "Asessment 1 (Part3)"
+author: "Kris Chavez (s4591950)"
+date: '2022-05-19'
+output: 
+  html_document:
+      number_sections: true           
+      toc: true                       #TOC = Table of COntents
+      toc_depth: 2
+      toc_float: true
+      theme: cerulean                  #Added a theme to make the document more appealing
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# install.packages("tidyverse")
+# install.packages("rmarkdown")
+# install.packages("dplyr")
+# install.packages("skimr")
+# install.packages("ggplot2")
+# install.packages("knitr")
+# install.packages("kableExtra")
+# install.packages("plotly")
+
+library(tidyverse)
+library(rmarkdown)
+library(dplyr)
+library(skimr)
+library(ggplot2)
+library(knitr)
+library(kableExtra)
+library(plotly)
+
+```
+
+# Part 1: Loading and Filtering the dataset
+
+## What is RMarkdown?
+__Rmarkdown__ is a tool mostly used by _analysts_, to present their findings in the most visually appealing way.  Rmarkdown has the ability to add diagrams, plots, images and formatting options to those wanting to use Rstudio's to compile and present data.
+
+## Loading the dataset
+As shown below, we have loaded the *data* in a **new** variable called 'fastfood'
+```{r load the required CSV file}
+# Set working the working directory to the data set provided by the lecturer
+fastfood <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2018/2018-09-04/fastfood_calories.csv")
+```
+
+## Saving a copy of the dataset
+``` {r saving a  copy of the CSV file}
+# Saving my data as a CSV file
+write_csv(fastfood, "fastfood.csv")
+fastfood_data<-read_csv("fastfood.csv")
+```
+
+## Filtering the dataset:
+Given the criteria (dot points below), the goal of this assignment was to use _knitr_, _kable_ and the _head_ function to display visually appealing data.
+
++ Display the first __10 rows__ of the data set
++ Display the first __10 rows__ of the data set and the first __5 variables__.
+```{r filtering the data}
+# Display the first 10 rows of the data set
+knitr::kable(head(fastfood, 10), "pipe")        # pipe function is used to format the table
+# Display the first 10 rows of the data set and the first 5 variables
+knitr::kable(head(fastfood[1:10, 1:5]), "pipe") 
+```
+
+# Part 2: Data wranggling 
+
+## Display the observations that has more than 1000 calories
+
+The filter() function is used to display and sort data by:
+
++ **'>'** = greater than
++ **'>='** = greater than or equal to
++ **'<'** = less than or equal 
++ **'<='** = less than or equal 
++ **'=='** = equality
+``` {r}
+fastfood %>%                # add a pipe
+  filter(calories > 1000)   # greater than filter
+```
+
+## Using the Arrange() function 
+
+Arrange observations with more than 40 in total_fat and more than 80 in total_carb in the descending order and save them to a new variable (dataset) called 'dont_eat_this'
+``` {r}
+# create a data frame called 'dont_eat_this'
+# use the functions ARRANGE, GROUP_BY, DESC and .BY_GROUP
+# goal is to find the items with more than 40 total_cat and 80 total_carb
+dont_eat_this <- arrange(group_by(fastfood, item), # item is used as the key column to group
+                         desc(total_fat > 40), 
+                         desc(total_carb > 80),
+                         .by_group = TRUE)
+dont_eat_this
+```
+
+
+## Using the case_when() function
+
+Here is the logic of the script shown below:
+
++ create a new variable called 'heavy_food' using the mutate() function
++ Heavy = total calories > 500
++ Average = average calories < all other cases
++ Low = total calories < 250
+
+__*NOTE:*__ Only 6 rows is showing because there are 515 rows in-total.  Instead of scrolling through all 515 rows, I have used the head() function to only display the first 6 observations.  If you want to see the whole dataset, get rid of the head() function on the knitr::kable() argument.
+``` {r}
+dont_eat_this <- mutate(fastfood,
+    heavy_food = case_when(
+    calories > 500 ~ "heavy",
+    calories < 250 ~ "low",
+    TRUE ~ "other"
+    )
+  )
+
+# used knitr() to format the table
+knitr::kable(head(dont_eat_this,
+      format = "html", 
+      table.attr = "style='width:100%;'", 
+      align=rep('c', 1),
+      padding = 20)) %>%
+  kable_styling()
+
+# now that we have the newly created variable called 'heavy_food'
+# use the count function to count the observations
+dont_eat_this %>%
+  count(heavy_food) %>%
+  mutate(heavy_food_count = n)
+
+```
+
+
+## Display the types of variables in the dataset using 'skimr' package
+``` {r}
+# Display the summary of the dataset using skim
+skim(fastfood)
+
+# Use the script below to display a summary of the variables + averages of the data set
+skim(fastfood) %>%
+  dplyr::select(skim_type, skim_variable, numeric.mean)
+```
+
+
+## Present the count observation from each restaurant in a descending order
+
+Show the number of distinct items on a menu in the data set
+``` {r}
+# Count each item from a restaurant > in descending order
+fastfood %>%
+  count(restaurant,item) %>%
+  group_by(item) %>%
+  arrange(desc(item))
+
+# More cleaner way to view the n/ items based on the distinct RESTAURANT
+fastfood %>%
+  group_by(restaurant) %>%
+  summarise(fastfood = n_distinct(item)) %>%
+  arrange(desc(fastfood))
+```
+
+
+## Using group_by(), summarise and display the average number of calories for each restaurant.
+
+The script's logic: 
+
++ Human logic = grouping restaurant __AGAINST__ average calories
++ Computer logic = group_by (restaurant) ON calories(average)
+``` {r}
+# vars = variable
+# grouping RESTAURANT by CALORIES average
+fastfood %>%
+  group_by(restaurant) %>%
+  summarise_at(vars(calories), list(calories_average = mean))
+```
+
+
+## Add variables to the dataset, which:
+
+-  calculates the average calories per type of restaurant and call it `average_calories` 
+-  calculates the maximum total_fat per type of restaurant and call it `max_fat` 
+-  calculates the minimum cholesterol per type of restaurant and call it `min_cholesterol` 
+``` {r}
+fastfood <- fastfood_data %>% 
+  group_by(restaurant) %>%
+  mutate (
+    min_cholesterol=min(cholesterol), #min_cholesterol
+    max_fat=max(total_fat), #max_fat
+    average_calories=mean(calories)) #average_calories
+fastfood
+```
+
+
+## Display the data vis of `total_fat` per each type of `restaurant`.
+
+Using one of the functions from the 'TidyVerse' package,  __'GGPLOT'__ was used to display the total_fat(y-axis) against the different type of restaurants(x-axis) in a visual graph.  As shown below, we can see that the franchise 'McDonalds' and 'Burger King' were the top two restaurants with the most amount of total_fat content in their items (food).  Whilst the franchise 'Chick Fil-A' having the least total_fat content per item (disregarding the outliers).   
+``` {r}
+ggplot(data = fastfood) +
+  geom_point(mapping = aes(x = restaurant, y = total_fat))
+
+```
+
+
+## Add a variable to the dataset, which calculates the sum of cholesterol and sodium and call it `cholesterol_sodium`.
+
+Removing the variable `salad` by using the __rm()__ function.
+``` {r}
+# Add the variable 'cholesterol_sodium'
+# Sum of cholesterol and sodium
+fastfood <- fastfood_data %>%
+  mutate(cholester_sodium = sum(cholesterol,
+                                sodium, 
+                                na.rm = TRUE))  #na.rm = NA values should not be included
+fastfood
+
+# remove the variable 'salad'
+fastfood <- within(fastfood, rm(salad))
+```
+
+## Use observations for Mcdonalds to plot sugar variable against protein with `geom_point()`
+
+Using the script below, I have used the following functions:
+
++ filter()        -> to filter restaurants only containing the keyword "Mcdonalds"
++ geom_point()    -> adding 'dots' (data points) to the graph
++ geom_line()     -> connecting the dots to identify the common trend
+
+As a summary of the plot, I have come to the conclusion that the Mcdonalds franchise sells low protein meals.  In fact, most of their items (food) is by average medium-to-low in sugar and low in protein.  To add on, it could suggest that the outliers from the franchise could be due to the high-sugar content of their dessert items.
+``` {r}
+fastfood %>%
+  filter(restaurant == "Mcdonalds") %>%
+  ggplot(aes(protein, sugar)) + 
+  geom_point(colour = "red") +
+  geom_line()
+```
+
+
+
+# Part 3: Transforming the dataset 
+
+## Transforming the data into a factor variable
+
+Within the data set, the data_type is different across the whole file.  In order for the computer to read the data set as one data type, we can use factorization in R.  Similar to concatenation, we can use Factors to convert all data types into 1 singular read, such as integers.  Given the script below, we have managed to transform the data using factors.  For all CHARACTER type columns are now being read as factors, and all integer type columns remain the same. 
+```{r}
+# identify data type 
+str(fastfood)
+
+# create a new dataframe called 'fastfood_factor'
+# view the dataset as factor variables 
+fastfood_factor <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2018/2018-09-04/fastfood_calories.csv", header = TRUE, stringsAsFactors = TRUE)
+
+# shows datatypes in R
+# check if the datatypes have been factored 
+sapply(fastfood_factor, FUN = typeof)
+
+# to ensure the changes have been made, check the class variables
+# see how the 'CHARACTER' type columns have now been transformed to a 'FACTOR' type 
+sapply(fastfood_factor, FUN = class)
+
+# view the factor variables
+str(fastfood_factor)
+```
+
+
+## Using the cut_number() function:
+
++ Use the __'cut_number()' function to create a new variable called = __'calories_type'__
++ Use __'Calories'__ variable for __'cut_number()'__ function to split it into _3 categories_ __'n = 3'__
++ Add labels __'labels=c("low","medium","high")__' and make sure the data set is ordered by arranging it according to calories
+```{r}
+# create a new variable called 'calories_type'
+# turn the dataset into a factor
+calories_type <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2018/2018-09-04/fastfood_calories.csv", header = TRUE, stringsAsFactors = TRUE)
+
+
+# split the calories column to 3 categories
+# Low, Medium and High 
+# 0 - 499 (low), 500 - 999 (medium), 1000-4000 (high)
+calories_type <- cut(calories_type$calories,
+                     breaks=c(0,500,1000,2000),
+                     labels=c("Low","Medium","High"))
+
+# check the categorical calories using the first 10 observations
+calories_type[1:10]
+
+# once you like the changes, save to the original data set 
+fastfood <- fastfood %>%
+  mutate(calories_type)
+colnames(fastfood)
+```
+
+
+## Create a data vizualisation that shows the distribution of `__'Calories_type'__` in food items for each type of restaurant
+
+Using the visualization tool package ggplot(), I have created a barplot which perfectly depicts the overall calories against the restaurant.  As you can see, the franchise McDonalds contains the highest value of calories when compared to Tacobell; being the least.   
+```{r, include = FALSE}
+# Read the csv file
+# Create a new dataframe called 'calories_type_resto'
+# transform the columns into factors > purpose is for the script to read the factored 'calories_type' data set
+calories_type_resto <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2018/2018-09-04/fastfood_calories.csv", header = TRUE, stringsAsFactors = TRUE)
+
+
+# Mutate the 'calories_type' data set with the 'calories_type_resto'
+calories_type_resto %>%
+  mutate(calories_type = calories_type)
+```
+
+
+```{r}
+# use ggplot2 package
+# create a bar plot to compare with the different restaurants on the overall calories
+ggplot(calories_type_resto,aes(x=restaurant, y=calories_type, fill=calories)) +
+  geom_bar(stat="identity", position = "dodge") +
+  theme_bw() +
+  labs(title = "Calories against the Restaurant") +
+  theme(legend.position = "right") 
+```
+
+
+## Finding the mean of 2 variables (trans_fat & total_fat): 
+
++ Percentage of __'trans_fat'__ in __'total_fat'__ ('trans_fat' / 'total_fat')
++ The variable should be named __'trans_fat_percentage'__
+```{r}
+# create a new dataframe called 'trans_fat_percentage'
+trans_fat_percentage <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2018/2018-09-04/fastfood_calories.csv", header = TRUE)
+
+library(dplyr)
+# Run the script below to get the [trans_fat / total_fat * 100] function
+trans_fat_percentage <- 
+  mutate(trans_fat_percentage, 
+         trans_fat_percentage = trans_fat / total_fat * 100)
+
+# Once you like the changes, save to the original dataset
+fastfood <- 
+  mutate(trans_fat_percentage, 
+         trans_fat_percentage = trans_fat / total_fat * 100)
+```
+
+
+## Create a data vizualisation that shows the distribution of __'trans_fat'__ in food items for each type of restaurant.
+
+As shown from the graph below, we have come to the conclusion that Burger King has the highest number trans_fat in their food items.  But what does this tell us?  Unlike total_fat in foods - some fat can be healthy for the body if consumed in moderation (ie. avocado or nuts).  However, Trans_fat is the most unhealthy fat due to the chemical properties mostly coming from processed compounds. 
+```{r}
+ggplot(fastfood,aes(x=restaurant, y=trans_fat, fill=trans_fat)) +
+  geom_bar(stat="identity", position = "dodge") +
+  theme_bw() +
+  labs(title = "Calories against the Restaurant") +
+  theme(legend.position = "right") 
+```
+
+
+## Calculate and show the average (mean) __'total_fat'__ for each type of restaurant.  
+
+Calculated by mean(total_fat) and basing it on per Restaurant. 
+
+Therefore, the figures you see below are the calculated AVERAGES that were __'group_by'__ restaurant and NOT the whole data set. 
+
+```{r}
+fastfood_data %>%
+  select(restaurant, total_fat) %>%
+  group_by(restaurant) %>%
+  mutate(avg_total_fat = total_fat/ mean(total_fat, na.rm = TRUE)* 10)
+```
+
+
+## create a dataviz that allow to compare different restaurants on this variable (`total_fat`). 
+
+As shown below, McDonalds has the highest amount of total_fat in their Food items, with Burger King being in second.  However, Taco Bell having the lowest total_fat when compared to all restaurants.  This tells us that most Burger-type restaurants contain higher level of total_fat in their food items when compared to restaurants that use organic/natural foods such as Taco Bell's food items (ie. lettuce, wraps, tomatos, rice etc.)
+```{r}
+ggplot(fastfood,aes(x=restaurant, y=total_fat, fill=total_fat)) +
+  geom_bar(stat="identity", position = "dodge") +
+  theme_bw() +
+  labs(title = "Calories against the Restaurant") +
+  theme(legend.position = "right") 
+```
+
+
+
+
+
+
+
+
+
+
