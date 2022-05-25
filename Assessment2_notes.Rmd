@@ -1,0 +1,135 @@
+---
+title: "Asessment 2"
+author: "Kris Chavez (s4591950)"
+date: '2022-05-10'
+output: 
+  html_document:
+      number_sections: true           
+      toc: true                       #TOC = Table of COntents
+      toc_depth: 2
+      theme: readable                  #Added a theme to make the document more appealing
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# Install.packages("tidyverse")
+# Install.packages("rmarkdown")
+# install.packages("skimr")
+
+library(tidyverse)
+library(rmarkdown)
+library(skimr)
+```
+
+# Assignment 2 | _Kris Chavez_ __s4591950__
+
+## Part 1: Pre-requisites
+### Loading the dataset
+As shown below, we have loaded the *data* in a **new** variable called 'thanksgiving'
+```{r load the required CSV file}
+# Set working the working directory to the data set provided by the lecturer
+thanksgiving <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2018/2018-11-20/thanksgiving_meals.csv")
+```
+
+
+### Saving a copy of the dataset
+``` {r saving a  copy of the CSV file}
+# Saving my data as a CSV file
+write_csv(thanksgiving, "thanksgiving.csv")
+thanksgiving_data<-read_csv("thanksgiving.csv")
+```
+
+
+## Part 2: Data Wrangling and visualization 
+### Display the first 10 rows of the dataset using 'kable()' function
+```{r}
+knitr::kable(head(thanksgiving, 10), "pipe") 
+```
+
+### Use 'skim()' function to display the summary of the variables
+
++ Think about the task to predict a family income based on their menu: what variables may be useful? Are all of them correct type? 
+Write 2-3 sentences with your explanation.
++ Think about the task to predict a community type or US_region based on their menu: what variables may be useful? Are all of them correct type?
+```{r}
+library(skimr)
+skim(thanksgiving)
+```
+
+
+### Use `fct_reorder` and `parse_number` functions to create a factor variable `family_income`
+```{r}
+family_income <- thanksgiving %>%
+  filter(family_income != "Total", !is.na(age)) %>%
+  mutate(family_income = fct_lump(family_income, 5, w = age), 
+         age = coalesce(parse_number(as.character(family_income)), 1),
+         family_income = fct_reorder(family_income, age)) %>%
+  ggplot(aes(age, fill = family_income)) + 
+  geom_col()
+
+```
+
+### What is the number of people who celebrate? 
+
+Based on the script below, there are 980 people who have celebrated whilst there are 78 people who did not.
+```{r}
+celebrate_n <- thanksgiving %>%
+  select(celebrate, starts_with("Yes")) %>%
+  mutate(type = str_remove(celebrate, "No")) %>%
+  count(celebrate)
+view(celebrate_n)
+```
+
+### What are categories and insights for each main dish served and the method it is prepared?
+```{r}
+
+```
+
+### Create 3 different data viz showing insights for main dish served and the method. Provide your own legend and use themes. Write 2-3 sentences with your explanation of each insight.
+```{r}
+thanksgiving %>%
+  filter(regi)
+
+```
+
+### (1.) How many use cranberry sauce?  (2.) How many use gravy?
+
+
+###  What is the distribution of those who celebrate across income ranges. Create a data viz.  Write 2-3 sentences with your explanation of each insight.
+
+
+### Use the following code to create a new data set and explain what is does (2-3 sentences):
+
+The main intention of the script (found below) was to select and view the matching deserts to their corresponding dessert ID.  The way the script was structured was to (1.) select the variables, (2.) gather the variables based on their ID's and lastly (3.) filter the data by removing any unnecessary characters using the __'str_remove()'__ function.  Once all 3 steps are met, then we are left with distinct desserts that are based on their correspond IDs, dessert_type and dessert_value.
+```{r}
+
+distinct_values <- thanksgiving %>% 
+  select(id, starts_with("side"),
+         starts_with("pie"),
+         starts_with("dessert")) %>%
+  select(-side15, -pie13, -dessert12) %>%
+  gather(type, value, -id) %>%
+  filter(!is.na(value),
+         !value %in% c("None", "Other (please specify)")) %>%
+  mutate(type = str_remove(type, "\\d+"))
+view(distinct_values)
+```  
+### Intall package `widyr` and use `pairwise_cor()` function https://www.rdocumentation.org/packages/widyr/versions/0.1.3/topics/pairwise_cor Write 2-3 sentences with your explanation of what it does.
+
+Use this code for the new dataset
+
+```{r}
+library(widyr)
+thanksgiving %>%
+pairwise_cor(value, id, sort = TRUE)
+
+```
+Write 1 sentence with your explanation of what insights it shows.
+
+### Use `lm()` or randomForest() function to build a model that predict a family income based on data in the dataset. 8 marks
+
+Compare 3 models using different set of input variables. Use different number of variables.
+
+Explain your choice of variables (3 sentences) 
+
+Write 2 sentences explaining which model os best.
