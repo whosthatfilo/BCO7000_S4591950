@@ -19,6 +19,7 @@ knitr::opts_chunk$set(echo = TRUE)
 # install.packages("dplyr")
 # install.packages("readr")
 # install.packages("skimr")
+# install.packages("widyr")
 
 library(tidyverse)
 library(rmarkdown)
@@ -26,6 +27,7 @@ library(tidytext)
 library(dplyr)
 library(readr)
 library(skimr)
+library(widyr)
 ```
 
 # Assignment 2 | _Kris Chavez_ __s4591950__
@@ -53,6 +55,14 @@ Write 2-3 sentences with your explanation.
 + Think about the task to predict a community type or US_region based on their menu: what variables may be useful? Are all of them correct type?
 ```{r}
 skim(thanksgiving)
+
+
+
+
+
+
+
+
 ```
 
 
@@ -103,7 +113,13 @@ thanksgiving %>%
 ```
 
 ### Create 3 different data viz showing insights for main dish served and the method. Provide your own legend and use themes. Write 2-3 sentences with your explanation of each insight.
+```{r}
 
+
+
+
+
+```
 
 ### (1.) How many use cranberry sauce?  (2.) How many use gravy?
 
@@ -137,7 +153,18 @@ thanksgiving %>%
 ```
 
 ###  What is the distribution of those who celebrate across income ranges. Create a data viz.  Write 2-3 sentences with your explanation of each insight.
+```{r}
 
+
+
+
+
+
+
+
+
+
+```
 
 ### Use the following code to create a new data set and explain what is does (2-3 sentences):
 
@@ -155,16 +182,20 @@ distinct_values <- thanksgiving %>%
 view(distinct_values)
 ```  
   
-### Intall package `widyr` and use `pairwise_cor()` function https://www.rdocumentation.org/packages/widyr/versions/0.1.3/topics/pairwise_cor Write 2-3 sentences with your explanation of what it does.
+### Intall package `widyr` and use `pairwise_cor()` 
 
-Use this code for the new dataset
++ The function __'pairwise_cor()'__ shows the correlation between a pair of variables.  Analysts use this to identify the relationship strength between variables to better authenticate the data.  We can use this information to show people the significance 2 variables can have - whatever those variables can be.  
++ Regarding insights, in our case, the 2 variables we chose was Gender against Age.  After running the script we can see that the values Male and Female have a very strong correlation with age (any value above 0.80+ is considered having a strong relationship).
 
 ```{r}
 library(widyr)
-thanksgiving %>%
-pairwise_cor(value, id, sort = TRUE)
+thanksgiving_data <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2018/2018-11-20/thanksgiving_meals.csv", header = TRUE)
+
+thanksgiving_data <- mutate(thanksgiving_data) %>%
+pairwise_cor(gender, age, sort = TRUE)
+view(thanksgiving_data)
+
 ```
-Write 1 sentence with your explanation of what insights it shows.
 
 ### Use `lm()` or randomForest() function to build a model that predict a family income based on data in the dataset.
 
@@ -174,6 +205,12 @@ Write 1 sentence with your explanation of what insights it shows.
 
 ```{r}
 set.seed(17)
+
+
+
+
+
+
 
 
 
