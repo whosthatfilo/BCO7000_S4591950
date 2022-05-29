@@ -63,24 +63,22 @@ skim(thanksgiving)
 
 ## Use `fct_reorder` and `parse_number` functions to create a factor variable `family_income`
 ```{r}
+# fct_reorder
+thanksgiving %>%
+  count(family_income) %>%
+  mutate(family_income = fct_reorder(family_income, n)) %>%
+  ggplot(aes(family_income, n)) +
+  geom_col() +
+  coord_flip()
 
-family_income <- thanksgiving %>%
-  mutate(family_income_count = fct_reorder(family_income, parse_number(family_income))) %>%
-  filter(!is.na(family_income))
+# parse_number
+thanksgiving %>%
+  mutate(family_income = parse_number(family_income)) %>%
+  filter(!is.na(family_income) & !is.na(family_income))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+# combine these two functions together
+thanksgiving %>%
+  mutate(family_income = fct_reorder(family_income, parse_number(family_income)))
 
 ```
 
@@ -240,20 +238,28 @@ view(thanksgiving_data)
 
 ## Use `lm()` or randomForest() function to build a model that predict a family income based on data in the dataset.
 
-+ Compare 3 models using different set of input variables. Use different number of variables.
-+ Explain your choice of variables (3 sentences) 
-+ Write 2 sentences explaining which model is best.
++ The 3 main variables I chose in the data set were, __Gender, Community Type and Age__. I wanted to select variables that relate more to the object _family_income_ thus my reasoning for picking these 3.  By using the lm() function, I wanted to gain insight on how these 3 variables relate to the family_income object.
+
++ After running the script below, the model that best suites the family_income variable is age.  When running the lm() function, we can see that majority of the users mentioned within the data set fall between the 45 to 59 year old age gap.  Although this is only an assumption, this can also tell us that most 45 - 59 year olds, enjoy making thanksgiving desserts.
 
 ```{r}
-set.seed(17)
+# Using the previous code, use the parse_number() function to only read the object as a variable
+# Next is to run the lm() function to view a summarised regression model
+thanksgiving <- thanksgiving %>%
+  mutate(family_income_count = parse_number(family_income)) %>%
+  filter(!is.na(family_income) & !is.na(family_income_count))
 
+# Family Income vs. Gender
+model_1<-lm(family_income_count~gender, data=thanksgiving)
+tidy(model_1)
 
+# Family Income vs. Community Type
+model_2<-lm(family_income_count~community_type, data=thanksgiving)
+tidy(model_2)
 
-
-
-
-
-
+# Family Income vs. Age
+model_3<-lm(family_income_count~age, data=thanksgiving)
+tidy(model_3)
 
 ```
 
