@@ -1,74 +1,215 @@
 ---
-title: "Asessment 2"
+title: "Assessment 2"
 author: "Kris Chavez (s4591950)"
-date: '2022-05-10'
+date: '2022-05-24'
 output: 
   html_document:
       number_sections: true           
       toc: true                       #TOC = Table of COntents
       toc_depth: 2
-      theme: readable                  #Added a theme to make the document more appealing
+      toc_float: true
+      theme: cerulean                  #Added a theme to make the document more appealing
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-# Install.packages("tidyverse")
-# Install.packages("rmarkdown")
+# install.packages("tidyverse")
+# install.packages("rmarkdown")
+# install.packages("tidytext")
+# install.packages("dplyr")
+# install.packages("readr")
+# install.packages("skimr")
+# install.packages("widyr")
+# install.packages("knitr")
+
 library(tidyverse)
 library(rmarkdown)
+library(tidytext)
+library(dplyr)
+library(readr)
+library(skimr)
+library(widyr)
+library(knitr)
 ```
 
-# Assignment 2 | _Kris Chavez_ __s4591950__
+# Part 1: Formatting Rmarkdown document
 
-## Part 1: Pre-requisites
-### Loading the dataset
+## Assignment 2: __Kris Chavez__ __s4591950__
+
+## Loading the dataset
 As shown below, we have loaded the *data* in a **new** variable called 'thanksgiving'
 ```{r load the required CSV file}
 # Set working the working directory to the data set provided by the lecturer
-thanksgiving <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2018/2018-11-20/thanksgiving_meals.csv")
+thanksgiving <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2018/2018-11-20/thanksgiving_meals.csv", header = TRUE)
 ```
 
 
-### Saving a copy of the dataset
-``` {r saving a  copy of the CSV file}
-# Saving my data as a CSV file
-write_csv(thanksgiving, "thanksgiving.csv")
-thanksgiving_data<-read_csv("thanksgiving.csv")
-```
+# Part 2: Data Wrangling and visualization 
 
-
-## Part 2: Data Wrangling and visualization 
-### Display the first 10 rows of the dataset using 'kable()' function
+## Display the first 10 rows of the dataset using 'kable()' function
 ```{r}
-knitr::kable(head(thanksgiving, 10), "pipe") 
+knitr::kable(head(thanksgiving, 10), "pipe", header = TRUE) 
 ```
 
-### Use 'skim()' function to display the summary of the variables
-Think about the task to predict a family income based on their menu: what variables may be useful? Are all of them correct type? 
+## Use 'skim()' function to display the summary of the variables
+
++ Think about the task to predict a family income based on their menu: what variables may be useful? Are all of them correct type? 
 Write 2-3 sentences with your explanation.
-
-Think about the task to predict a community type or US_region based on their menu: what variables may be useful? Are all of them correct type?
-
-### Use `fct_reorder` and `parse_number` functions to create a factor variable `family_income`
-
-
-### What is the number of people who celebrate? 
++ Think about the task to predict a community type or US_region based on their menu: what variables may be useful? Are all of them correct type?
+```{r}
+skim(thanksgiving)
+```
 
 
-### What are categories and insights for each main dish served and the method it is prepared?
+## Use `fct_reorder` and `parse_number` functions to create a factor variable `family_income`
+```{r}
+# fct_reorder
+thanksgiving %>%
+  count(family_income) %>%
+  mutate(family_income = fct_reorder(family_income, n)) %>%
+  ggplot(aes(family_income, n)) +
+  geom_col() +
+  coord_flip()
 
+# parse_number
+thanksgiving %>%
+  mutate(family_income = parse_number(family_income)) %>%
+  filter(!is.na(family_income) & !is.na(family_income))
 
-### Create 3 different data viz showing insights for main dish served and the method. Provide your own legend and use themes. Write 2-3 sentences with your explanation of each insight.
+# combine these two functions together
+thanksgiving %>%
+  mutate(family_income = fct_reorder(family_income, parse_number(family_income)))
 
+```
 
-### (1.) How many use cranberry sauce?  (2.) How many use gravy?
+## What is the number of people who celebrate? 
 
+Based on the script below, there are 980 people who have celebrated whilst there are 78 people who did not.
+```{r}
+thanksgiving %>%
+  group_by(celebrate) %>%
+  summarise(counts = n()) %>%
+  arrange(desc(celebrate)) %>%
+  kable()
+```
 
-###  What is the distribution of those who celebrate across income ranges. Create a data viz.  Write 2-3 sentences with your explanation of each insight.
+## What are categories and insights for each main dish served and the method it is prepared?
 
+__Items include:__
 
-### Use the following code to create a new data set and explain what is does (2-3 sentences):
-select(id, starts_with("side"),
++ Main_Dish: Turkey, Turducken, Tofurkey, RoastBeef, Ham/Pork, Chicken, I don't know, Other
++ Main_Prep: Roasted, I don't know, Fried, Baked and Other
+```{r}
+# print categories for Main_Dish and Prep
+thanksgiving %>%
+  select(main_dish, main_prep) %>%
+  group_by(main_dish, main_prep) %>%
+  summarise(counts = n()) %>%
+  arrange(desc(main_dish)) %>%
+  kable()
+```
+
+## Create 3 different data viz showing insights for main dish served and the method. Provide your own legend and use themes. Write 2-3 sentences with your explanation of each insight.
+
+These were the variables I chose to visualize against the Main_prep variable: 
+
+__Main_prep:__ 
+
++ Based on the Insight, out of 1k+ observations most prefer Baking and roasting as a method of cooking.
+
+__Stuffing:__
+
++ Based on the data set, most desserts use bread-based as a form of stuffing of chicken.
+
+__Cranberry:__
+
++ This variable was the most interesting.  As shown from the graph, most people within this data set prefer using 'canned' cranberry sauce when compared to the other 50%-ish observations who prefer using the 'homemade' method.
+```{r}
+## Use the script below to view the unique values of a column 
+## unique(data_frame$column)
+
+# Main_dish vs. Main_prep
+thanksgiving %>%
+filter(main_prep == "Baked" | main_prep == "Fried" | main_prep == "Roasted" | main_prep == "Other (please specify)") %>%
+ggplot(aes(main_dish, fill = main_dish)) + geom_bar() + facet_wrap(vars(main_prep)) +
+theme(axis.title.x=element_blank(), axis.text.x=element_blank(), axis.ticks.x=element_blank())
+
+# Main_dish vs. Stuffing
+thanksgiving %>%
+filter(stuffing == "Bread-based" | stuffing == "Rice-based") %>%
+ggplot(aes(main_dish, fill = main_dish)) + geom_bar() + facet_wrap(vars(stuffing)) +
+theme(axis.title.x=element_blank(), axis.text.x=element_blank(), axis.ticks.x=element_blank())
+
+# Main_dish vs. Cranberry
+thanksgiving %>%
+filter(cranberry == "Homemade" | cranberry == "Canned" | cranberry == "Other (please specify)") %>%
+ggplot(aes(main_dish, fill = main_dish)) + geom_bar() + facet_wrap(vars(cranberry)) +
+theme(axis.title.x=element_blank(), axis.text.x=element_blank(), axis.ticks.x=element_blank())
+
+```
+
+## (1.) How many use cranberry sauce?  (2.) How many use gravy?
+
+According to the script below, there are:
+
+__CRANBERRY:__
+
++ Homemade: 301
++ Canned: 502
++ Other: 25
++ None: 146
++ NA: 84
+
+Summary: 827 / 1080 uses cranberry sauce
+
+__GRAVY:__
+
++ 892 people using Gravy whilst 
++ 82 said "no" to using Gravy and
++ 84 did not answer (NA)
+Summary: 892 / 1058 uses gravy
+```{r}
+# filter the dataset based on how many people said "Yes" to using Cranberry
+thanksgiving %>%
+  group_by(cranberry) %>%
+  summarise(counts = n()) %>%
+  arrange(desc(cranberry)) %>%
+  kable()
+
+# filter the dataset based on how many people said "Yes" to using Gravy
+thanksgiving %>%
+  group_by(gravy) %>%
+  summarise(counts = n()) %>%
+  arrange(desc(gravy)) %>%
+  kable()
+
+```
+
+##  What is the distribution of those who celebrate across income ranges. Create a data viz.  Write 2-3 sentences with your explanation of each insight.
+
+After running the script below, we can see that most families that are near the 0 to 100k range tend to celebrate thanksgiving more than the 100k to 200k+ family_income.  Although this is only an assumption, the graph tells us that money != happiness and that the richer the family the less they take the time to celebrate public holidays such as thanksgiving.
+```{r}
+# use the parse_number() function to drop non-numeric values in the family_income columns
+# create a column that counts the NUMERIC family_income() values
+thanksgiving <- thanksgiving %>%
+  mutate(family_income_count = parse_number(family_income)) %>%
+  filter(!is.na(family_income) & !is.na(family_income_count))
+
+# visualize the data
+# use ggplot()
+thanksgiving %>%
+  filter(celebrate == "Yes") %>%
+  ggplot(aes(family_income_count)) + geom_bar(aes(family_income_count), color="red") +
+  ggtitle("Celebrate = TRUE")
+  
+```
+
+## Use the following code to create a new data set and explain what is does (2-3 sentences):
+
+The main intention of the script (found below) was to select and view the matching deserts to their corresponding dessert ID.  The way the script was structured was to (1.) select the variables, (2.) gather the variables based on their ID's and lastly (3.) filter the data by removing any unnecessary characters using the __'str_remove()'__ function.  Once all 3 steps are met, then we are left with distinct desserts that are based on their correspond IDs, dessert_type and dessert_value.
+```{r}
+distinct_values <- thanksgiving %>% 
+  select(id, starts_with("side"),
          starts_with("pie"),
          starts_with("dessert")) %>%
   select(-side15, -pie13, -dessert12) %>%
@@ -76,24 +217,51 @@ select(id, starts_with("side"),
   filter(!is.na(value),
          !value %in% c("None", "Other (please specify)")) %>%
   mutate(type = str_remove(type, "\\d+"))
+view(distinct_values) %>%
+  kable()
+```  
   
-### Intall package `widyr` and use `pairwise_cor()` function https://www.rdocumentation.org/packages/widyr/versions/0.1.3/topics/pairwise_cor Write 2-3 sentences with your explanation of what it does.
+## Intall package `widyr` and use `pairwise_cor()` 
 
-Use this code for the new dataset
++ The function __'pairwise_cor()'__ shows the correlation between a pair of variables.  Analysts use this to identify the relationship strength between variables to better authenticate the data.  We can use this information to show people the significance 2 variables can have - whatever those variables can be.  
++ Regarding insights, in our case, the 2 variables we chose was Gender against Age.  After running the script we can see that the values Male and Female have a very strong correlation with age (any value above 0.80+ is considered having a strong relationship).
 
-`
-pairwise_cor(value, id, sort = TRUE)
+```{r}
+library(widyr)
+thanksgiving_data <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2018/2018-11-20/thanksgiving_meals.csv", header = TRUE)
 
-`
-Write 1 sentence with your explanation of what insights it shows.
+thanksgiving_data <- mutate(thanksgiving_data) %>%
+pairwise_cor(gender, age, sort = TRUE)
+view(thanksgiving_data)
 
-### Use `lm()` or randomForest() function to build a model that predict a family income based on data in the dataset. 8 marks
+```
 
-Compare 3 models using different set of input variables. Use different number of variables.
+## Use `lm()` or randomForest() function to build a model that predict a family income based on data in the dataset.
 
-Explain your choice of variables (3 sentences) 
++ The 3 main variables I chose in the data set were, __Gender, Community Type and Age__. I wanted to select variables that relate more to the object _family_income_ thus my reasoning for picking these 3.  By using the lm() function, I wanted to gain insight on how these 3 variables relate to the family_income object.
 
-Write 2 sentences explaining which model os best.
++ After running the script below, the model that best suites the family_income variable is age.  When running the lm() function, we can see that majority of the users mentioned within the data set fall between the 45 to 59 year old age gap.  Although this is only an assumption, this can also tell us that most 45 - 59 year olds, enjoy making thanksgiving desserts.
+
+```{r}
+# Using the previous code, use the parse_number() function to only read the object as a variable
+# Next is to run the lm() function to view a summarised regression model
+thanksgiving <- thanksgiving %>%
+  mutate(family_income_count = parse_number(family_income)) %>%
+  filter(!is.na(family_income) & !is.na(family_income_count))
+
+# Family Income vs. Gender
+model_1<-lm(family_income_count~gender, data=thanksgiving)
+tidy(model_1)
+
+# Family Income vs. Community Type
+model_2<-lm(family_income_count~community_type, data=thanksgiving)
+tidy(model_2)
+
+# Family Income vs. Age
+model_3<-lm(family_income_count~age, data=thanksgiving)
+tidy(model_3)
+
+```
 
 
 
