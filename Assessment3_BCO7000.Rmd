@@ -11,3 +11,87 @@ output:
       theme: cerulean                  #Added a theme to make the document more appealing
 ---
 
+# Introduction 
+
+## Abstract
+
+# Main findings 
+
+``` {r load the required packages, include = FALSE}
+# install.packages("tidyverse")
+# install.packages("lubridate")
+# install.packages("scales")
+# install.packages("fishualize")
+# install.packages("extrafont")
+
+library(tidyverse)
+library(lubridate)
+library(scales)
+library(fishualize)
+library(extrafont)
+
+theme_set(theme_light())
+```
+
+``` {r}
+# get the data
+grosses <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-04-28/grosses.csv', guess_max = 40000)
+
+```
+
+Business Question:
+
+"To what extent can the gross total income affect the attendance figures of a specific Broadway Show - and how the ticket prices correlate to the attendance figures."
+
+``` {r}
+# data inspection 
+glimpse(grosses)
+
+
+# Identify the top 3 most watched broad way shows:
+grosses %>%
+  distinct(show, .keep_all = TRUE) %>% 
+  select (show, seats_sold, weekly_gross, avg_ticket_price) %>%
+  group_by(show, seats_sold, weekly_gross, avg_ticket_price) %>%
+  summarise(counts = n()) %>%
+  arrange(desc(seats_sold)) %>%
+  head(arrange(grosses, desc(show)), n = 3)
+
+
+# Identify the gross revenue, percent capacity and average ticket value across different broad way shows
+# Following the script above, we will visualize the weekly gross against the most common broad way show "The Lion King"
+# Show: "David Copperfield: Dreams and Nightmares"
+grosses %>%
+  filter(show %in% c("David Copperfield: Dreams and Nightmares", "The Lion King")) %>%
+  ggplot(aes(seats_sold, weekly_gross, color=show)) +
+  geom_line()+
+  scale_y_continuous(labels = scales::dollar)+
+  expand_limits(y=0)
+
+# Show: "On the Town"
+grosses %>%
+  filter(show %in% c("On the Town", "The Lion King")) %>%
+  ggplot(aes(seats_sold, weekly_gross, color=show)) +
+  geom_line()+
+  scale_y_continuous(labels = scales::dollar)+
+  expand_limits(y=0)
+
+# Show: "Saturday Night Fever"
+grosses %>%
+  filter(show %in% c("Saturday Night Fever", "The Lion King")) %>%
+  ggplot(aes(seats_sold, weekly_gross, color=show)) +
+  geom_line()+
+  scale_y_continuous(labels = scales::dollar)+
+  expand_limits(y=0)
+
+
+```
+
+## Sub-question (Classification) - Joty
+
+
+
+## Sub-question (Regression) - Regression 
+
+
+# Conclusion
