@@ -15,7 +15,6 @@ output:
 
 ## Abstract
 
-# Main findings 
 
 ``` {r load the required packages, include = FALSE}
 # install.packages("tidyverse")
@@ -23,30 +22,31 @@ output:
 # install.packages("scales")
 # install.packages("fishualize")
 # install.packages("extrafont")
+# install.packages("randomForest")
+# install.packages("dplyr")
 
 library(tidyverse)
 library(lubridate)
 library(scales)
 library(fishualize)
 library(extrafont)
+library(randomForest)
+library(dplyr)
 
 theme_set(theme_light())
 ```
 
-``` {r}
+``` {r, include = FALSE}
 # get the data
 grosses <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-04-28/grosses.csv', guess_max = 40000)
 
 ```
 
-Business Question:
-
-"To what extent can the gross total income affect the attendance figures of a specific Broadway Show - and how the ticket prices correlate to the attendance figures."
+# Main findings
 
 ``` {r}
 # data inspection 
-glimpse(grosses)
-
+# glimpse(grosses)
 
 # Identify the top 3 most watched broad way shows:
 grosses %>%
@@ -57,8 +57,18 @@ grosses %>%
   arrange(desc(seats_sold)) %>%
   head(arrange(grosses, desc(show)), n = 3)
 
+# Compare with the summary of "The Lion King"
+grosses %>%
+  distinct(show, .keep_all = TRUE) %>% 
+  filter(show %in% c("The Lion King")) %>%
+  select (show, seats_sold, weekly_gross, avg_ticket_price) %>%
+  group_by(show, seats_sold, weekly_gross, avg_ticket_price) %>%
+  summarise(counts = n()) %>%
+  arrange(desc(seats_sold)) %>%
+  head(arrange(grosses, desc(show)), n = 3)
 
-# Identify the gross revenue, percent capacity and average ticket value across different broad way shows
+
+# Identify the gross revenue, seats_sold and average ticket value across different broad way shows
 # Following the script above, we will visualize the weekly gross against the most common broad way show "The Lion King"
 # Show: "David Copperfield: Dreams and Nightmares"
 grosses %>%
@@ -84,14 +94,99 @@ grosses %>%
   scale_y_continuous(labels = scales::dollar)+
   expand_limits(y=0)
 
+```
+
+# Classification
+
+``` {r}
+
+# View the top 3 grossing broadway shows
+grosses %>%
+distinct(show, .keep_all = TRUE) %>%
+  select(show, seats_sold, weekly_gross, avg_ticket_price) %>%
+  group_by(show, seats_sold, weekly_gross, avg_ticket_price) %>%
+  summarise(counts = n()) %>%
+  arrange(desc(seats_sold)) %>%
+  head(arrange(grosses, desc(show)), n = 3)
+
+# Create new dataset with filtered shows 
+grosses_new <- grosses %>%
+  filter(show %in% c("David Copperfield: Dreams and Nightmares", "On the Town", "Saturday Night Fever")) %>%
+  select(show, week_ending, theatre, weekly_gross, avg_ticket_price, seats_sold, pct_capacity)
+
+
+# Modify shows from a character variable to a factor variable for classification
+grosses_new$show <- as.factor(grosses_new$show)
+str(grosses_new)
 
 ```
 
-## Sub-question (Classification) - Joty
+```{r}
+# Creation of the classification Model
+set.seed(123)
+
+index = sample(2, nrow(grosses_new), replace = TRUE, prob = c(0.7,0.3))
+
+#Training data
+Training = grosses_new[index==1,]
+
+# Testing data
+Testing = grosses_new[index==2,]
+
+# Random Forest Model
+RFM = randomForest(show~., data = Training)
+
+# Evaluate Model Accuracy
+show_pred = predict(RFM, Testing)
+
+Testing$show_pred = show_pred
+
+# Confusion Matrix
+
+CFM = table(Testing$show, Testing$show_pred)
+CFM
+
+# The accuracy of the classification model
+Classification_Accuracy = sum(diag(CFM)/sum(CFM))
+Classification_Accuracy
+```
+
+# Regression 
+
+```{r}
+# To what extent can the gross total income affect the attendance figures of a specific Broadway Show ?
+Shows = grosses %>%
+  group_by(show)%>%
+  summarise(gross_total_income = sum(weekly_gross), seats_sold = sum(seats_sold) )
+
+ggplot(Shows, aes(x=gross_total_income, y=seats_sold)) +
+  geom_point()+
+  geom_smooth(method=lm)
+
+# view the summary of the model
+Model = lm(seats_sold~gross_total_income, Shows)
+summary(Model)
+
+# how the ticket prices correlate to the attendance figures
+ggplot(grosses, aes(x=seats_sold, y=avg_ticket_price)) +
+  geom_point()+
+  geom_smooth(method=lm)
+
+# get a correlation value
+cor(grosses$seats_sold, grosses$avg_ticket_price, use = "complete.obs")
+```
 
 
 
-## Sub-question (Regression) - Regression 
 
 
-# Conclusion
+
+
+
+
+
+
+
+
+
+
